@@ -8,8 +8,11 @@ public class PlayerMovement : MonoBehaviour
     Rigidbody2D rb;
     [SerializeField] float speed = 1f;
     [SerializeField] float jumpHeight = 3f;
+    [SerializeField] float dashSpeed = 5f;
+    [SerializeField] float dashDuration = 0.2f;
     float direction = 0;
     bool isGrounded = false;
+    bool isDashing = false;
 
     // Start is called before the first frame update
     void Start()
@@ -20,7 +23,8 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Move(direction);
+        if (!isDashing)
+            Move(direction);
     }
 
     void OnMove(InputValue value)
@@ -45,6 +49,25 @@ public class PlayerMovement : MonoBehaviour
         rb.velocity = new Vector2(rb.velocity.x, jumpHeight);
     }
 
+    void OnDash(InputValue value)
+    {
+        Debug.Log("Dash Input Received!");
+        if (!isDashing)
+        {
+            StartCoroutine(Dash());
+        }
+    }
+
+    IEnumerator Dash()
+    {
+        isDashing = true;
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+        rb.velocity = new Vector2(direction * dashSpeed, 0f);
+        yield return new WaitForSeconds(dashDuration);
+        rb.gravityScale = originalGravity;
+        isDashing = false;
+    }
     void OnCollisionEnter2D(Collision2D collision)
     {
 
