@@ -13,11 +13,15 @@ public class PlayerMovement : MonoBehaviour
     float direction = 0;
     bool isGrounded = false;
     bool isDashing = false;
+    bool isFacingRight = true;
+
+    Animator anim;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -25,6 +29,9 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!isDashing)
             Move(direction);
+        if (isFacingRight && direction == -1 || !isFacingRight && direction == 1){
+            Flip();
+        }
     }
 
     void OnMove(InputValue value)
@@ -36,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
     void Move(float dir)
     {
         rb.velocity = new Vector2(dir * speed, rb.velocity.y);
+        anim.SetBool("isRunning", dir != 0);
     }
 
     void OnJump()
@@ -95,5 +103,13 @@ public class PlayerMovement : MonoBehaviour
         {
             isGrounded = false;
         }
+    }
+
+    private void Flip()
+    {
+        isFacingRight = !isFacingRight;
+        Vector3 newLocalScale = transform.localScale;
+        newLocalScale.x *= -1f;
+        transform.localScale = newLocalScale;
     }
 }
